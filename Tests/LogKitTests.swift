@@ -219,7 +219,7 @@ class HTTPEndpointTests: XCTestCase {
 
 class LoggerTests: XCTestCase {
 
-    var log: LXLogger?
+    var log: Logger?
     var fileEndpoint: LXFileEndpoint?
     let endpointURL = NSURL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         .URLByAppendingPathComponent("info.logkit.test", isDirectory: true)
@@ -230,7 +230,7 @@ class LoggerTests: XCTestCase {
         super.setUp()
         self.fileEndpoint = LXFileEndpoint(fileURL: self.endpointURL, shouldAppend: false, entryFormatter: self.entryFormatter)
         XCTAssertNotNil(self.fileEndpoint, "Failed to init File Endpoint")
-        self.log = LXLogger(endpoints: [ self.fileEndpoint, ])
+        self.log = Logger(endpoints: [ self.fileEndpoint, ], writeMode: .Synchronous)
         XCTAssertNotNil(self.log, "Failed to init Logger")
     }
 

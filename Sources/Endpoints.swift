@@ -30,6 +30,8 @@ public protocol LXEndpoint {
 
     /// Writes a serialized Log Entry string to the final destination this Endpoint represents.
     ///
+    /// This call should be as synchronous as possible, as the Logger will handle any asynchronous behavior desired.
+    ///
     /// - parameter string: The Log Entry, after being serialized to a string by the `entryFormatter`.
     func write(string: String) -> Void
 
