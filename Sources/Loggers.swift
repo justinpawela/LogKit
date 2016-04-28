@@ -137,19 +137,21 @@ public final class Logger {
         functionName: String,
         filePath: String,
         lineNumber: Int,
-        columnNumber: Int,
-        threadID: String = NSString(format: "%p", NSThread.currentThread()) as String,
-        threadName: String = NSThread.currentThread().name ?? "",
-        isMainThread: Bool = NSThread.currentThread().isMainThread
+        columnNumber: Int
     ) {
+        #if !LogKitDisabled
         // Get a timestamp before doing anything else. Relative to Darwin reference epoch 2001-01-01 (not Unix epoch).
         let timestamp = CFAbsoluteTimeGetCurrent()
 
         // Determine what (if any) Endpoints this Log Entry will target.
         let targetEndpoints = self.endpoints.filter({ $0.minimumPriorityLevel <= level })
         if !targetEndpoints.isEmpty {
-            // Resolve the message now, just once
+
+            // Resolve the message now, just once, and capture some environment info.
             let message = messageBlock()
+            let threadID = String(format: "%p", NSThread.currentThread())
+            let threadName = NSThread.currentThread().name ?? ""
+            let isMainThread = NSThread.currentThread().isMainThread
             let now = NSDate(timeIntervalSinceReferenceDate: timestamp)
 
             // Create a group to keep all writes for a particular Log Entry together.
@@ -186,12 +188,14 @@ public final class Logger {
                 dispatch_group_wait(writeGroup, DISPATCH_TIME_FOREVER)
             })
         }
+        #endif
     }
 
+    #if !(LogKitMinLevelInfo || LogKitMinLevelNotice || LogKitMinLevelWarning || LogKitMinLevelError || LogKitMinLevelCritical || LogKitDisabled)
     /// Log a `Debug` entry.
     ///
     /// - parameter message:  The message to log.
-    /// - parameter userInfo: A dictionary of additional values for Endpoints to consider.
+    /// - parameter userInfo: A dictionary of additional values to be passed to Endpoints.
     public func debug(
         @autoclosure(escaping) message: () -> String,
         userInfo: [String: AnyObject] = [:],
@@ -200,13 +204,28 @@ public final class Logger {
         lineNumber: Int = #line,
         columnNumber: Int = #column
     ) {
-        self.log(message, userInfo: userInfo, level: .Debug, functionName: functionName, filePath: filePath, lineNumber: lineNumber, columnNumber: columnNumber)
+        self.log(message,
+                 userInfo: userInfo,
+                 level: .Debug,
+                 functionName: functionName,
+                 filePath: filePath,
+                 lineNumber: lineNumber,
+                 columnNumber: columnNumber)
     }
+    #else
+    /// Log a `Debug` entry.
+    ///
+    /// - note: This logging call is currently disabled based on a compiler flag setting. Either the
+    ///         `-DLogKitDisabled` flag has been set, or a minimum level flag greater than `Debug` has been set.
+    public func debug(@autoclosure message: () -> String, userInfo: [String: AnyObject] = [:])
+    { /* Redefined as a stub with a `noescape` autoclosure. Should allow compiler to optimize more aggressively. */ }
+    #endif
 
+    #if !(LogKitMinLevelNotice || LogKitMinLevelWarning || LogKitMinLevelError || LogKitMinLevelCritical || LogKitDisabled)
     /// Log an `Info` entry.
     ///
     /// - parameter message:  The message to log.
-    /// - parameter userInfo: A dictionary of additional values for Endpoints to consider.
+    /// - parameter userInfo: A dictionary of additional values to be passed to Endpoints.
     public func info(
         @autoclosure(escaping) message: () -> String,
         userInfo: [String: AnyObject] = [:],
@@ -215,13 +234,28 @@ public final class Logger {
         lineNumber: Int = #line,
         columnNumber: Int = #column
     ) {
-        self.log(message, userInfo: userInfo, level: .Info, functionName: functionName, filePath: filePath, lineNumber: lineNumber, columnNumber: columnNumber)
+        self.log(message,
+                 userInfo: userInfo,
+                 level: .Info,
+                 functionName: functionName,
+                 filePath: filePath,
+                 lineNumber: lineNumber,
+                 columnNumber: columnNumber)
     }
+    #else
+    /// Log an `Info` entry.
+    ///
+    /// - note: This logging call is currently disabled based on a compiler flag setting. Either the
+    ///         `-DLogKitDisabled` flag has been set, or a minimum level flag greater than `Info` has been set.
+    public func info(@autoclosure message: () -> String, userInfo: [String: AnyObject] = [:])
+    { /* Redefined as a stub with a `noescape` autoclosure. Should allow compiler to optimize more aggressively. */ }
+    #endif
 
+    #if !(LogKitMinLevelWarning || LogKitMinLevelError || LogKitMinLevelCritical || LogKitDisabled)
     /// Log a `Notice` entry.
     ///
     /// - parameter message:  The message to log.
-    /// - parameter userInfo: A dictionary of additional values for Endpoints to consider.
+    /// - parameter userInfo: A dictionary of additional values to be passed to Endpoints.
     public func notice(
         @autoclosure(escaping) message: () -> String,
         userInfo: [String: AnyObject] = [:],
@@ -230,13 +264,28 @@ public final class Logger {
         lineNumber: Int = #line,
         columnNumber: Int = #column
     ) {
-        self.log(message, userInfo: userInfo, level: .Notice, functionName: functionName, filePath: filePath, lineNumber: lineNumber, columnNumber: columnNumber)
+        self.log(message,
+                 userInfo: userInfo,
+                 level: .Notice,
+                 functionName: functionName,
+                 filePath: filePath,
+                 lineNumber: lineNumber,
+                 columnNumber: columnNumber)
     }
+    #else
+    /// Log a `Notice` entry.
+    ///
+    /// - note: This logging call is currently disabled based on a compiler flag setting. Either the
+    ///         `-DLogKitDisabled` flag has been set, or a minimum level flag greater than `Notice` has been set.
+    public func notice(@autoclosure message: () -> String, userInfo: [String: AnyObject] = [:])
+    { /* Redefined as a stub with a `noescape` autoclosure. Should allow compiler to optimize more aggressively. */ }
+    #endif
 
+    #if !(LogKitMinLevelError || LogKitMinLevelCritical || LogKitDisabled)
     /// Log a `Warning` entry.
     ///
     /// - parameter message:  The message to log.
-    /// - parameter userInfo: A dictionary of additional values for Endpoints to consider.
+    /// - parameter userInfo: A dictionary of additional values to be passed to Endpoints.
     public func warning(
         @autoclosure(escaping) message: () -> String,
         userInfo: [String: AnyObject] = [:],
@@ -245,13 +294,28 @@ public final class Logger {
         lineNumber: Int = #line,
         columnNumber: Int = #column
     ) {
-        self.log(message, userInfo: userInfo, level: .Warning, functionName: functionName, filePath: filePath, lineNumber: lineNumber, columnNumber: columnNumber)
+        self.log(message,
+                 userInfo: userInfo,
+                 level: .Warning,
+                 functionName: functionName,
+                 filePath: filePath,
+                 lineNumber: lineNumber,
+                 columnNumber: columnNumber)
     }
+    #else
+    /// Log a `Warning` entry.
+    ///
+    /// - note: This logging call is currently disabled based on a compiler flag setting. Either the
+    ///         `-DLogKitDisabled` flag has been set, or a minimum level flag greater than `Warning` has been set.
+    public func warning(@autoclosure message: () -> String, userInfo: [String: AnyObject] = [:])
+    { /* Redefined as a stub with a `noescape` autoclosure. Should allow compiler to optimize more aggressively. */ }
+    #endif
 
+    #if !(LogKitMinLevelCritical || LogKitDisabled)
     /// Log an `Error` entry.
     ///
     /// - parameter message:  The message to log.
-    /// - parameter userInfo: A dictionary of additional values for Endpoints to consider.
+    /// - parameter userInfo: A dictionary of additional values to be passed to Endpoints.
     public func error(
         @autoclosure(escaping) message: () -> String,
         userInfo: [String: AnyObject] = [:],
@@ -260,13 +324,28 @@ public final class Logger {
         lineNumber: Int = #line,
         columnNumber: Int = #column
     ) {
-        self.log(message, userInfo: userInfo, level: .Error, functionName: functionName, filePath: filePath, lineNumber: lineNumber, columnNumber: columnNumber)
+        self.log(message,
+                 userInfo: userInfo,
+                 level: .Error,
+                 functionName: functionName,
+                 filePath: filePath,
+                 lineNumber: lineNumber,
+                 columnNumber: columnNumber)
     }
+    #else
+    /// Log an `Error` entry.
+    ///
+    /// - note: This logging call is currently disabled based on a compiler flag setting. Either the
+    ///         `-DLogKitDisabled` flag has been set, or a minimum level flag greater than `Error` has been set.
+    public func error(@autoclosure message: () -> String, userInfo: [String: AnyObject] = [:])
+    { /* Redefined as a stub with a `noescape` autoclosure. Should allow compiler to optimize more aggressively. */ }
+    #endif
 
+    #if !LogKitDisabled
     /// Log a `Critical` entry.
     ///
     /// - parameter message:  The message to log.
-    /// - parameter userInfo: A dictionary of additional values for Endpoints to consider.
+    /// - parameter userInfo: A dictionary of additional values to be passed to Endpoints.
     public func critical(
         @autoclosure(escaping) message: () -> String,
         userInfo: [String: AnyObject] = [:],
@@ -275,8 +354,22 @@ public final class Logger {
         lineNumber: Int = #line,
         columnNumber: Int = #column
     ) {
-        self.log(message, userInfo: userInfo, level: .Critical, functionName: functionName, filePath: filePath, lineNumber: lineNumber, columnNumber: columnNumber)
+        self.log(message,
+                 userInfo: userInfo,
+                 level: .Critical,
+                 functionName: functionName,
+                 filePath: filePath,
+                 lineNumber: lineNumber,
+                 columnNumber: columnNumber)
     }
+    #else
+    /// Log a `Critical` entry.
+    ///
+    /// - note: This logging call is currently disabled based on a compiler flag setting. Either the
+    ///         `-DLogKitDisabled` flag has been set, or a minimum level flag greater than `Critical` has been set.
+    public func critical(@autoclosure message: () -> String, userInfo: [String: AnyObject] = [:])
+    { /* Redefined as a stub with a `noescape` autoclosure. Should allow compiler to optimize more aggressively. */ }
+    #endif
 
 }
 
