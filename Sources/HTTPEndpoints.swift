@@ -49,7 +49,7 @@ private class LXPersistedCache {
         self.timeoutInterval = timeoutInterval
         if let fileURL = LK_DEFAULT_LOG_DIRECTORY?.URLByAppendingPathComponent(fileName, isDirectory: false) {
             do { //TODO: This is a mess.
-                try NSFileManager.defaultManager().ensureFile(at: fileURL)
+                try NSFileManager.defaultManager().ensureFileExists(at: fileURL)
                 self.file = try? NSFileHandle(forUpdatingURL: fileURL)
             } catch { self.file = nil }
         } else {

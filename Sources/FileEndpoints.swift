@@ -102,7 +102,7 @@ private class LXLogFile {
     ///                           the file should be truncated when opened.
     /// - throws: `NSError` with domain `NSURLErrorDomain`
     convenience init(URL: NSURL, shouldAppend: Bool) throws {
-        try NSFileManager.defaultManager().ensureFile(at: URL)
+        try NSFileManager.defaultManager().ensureFileExists(at: URL)
         guard let handle = try? NSFileHandle(forWritingToURL: URL) else {
             assertionFailure("Error opening log file at path: \(URL.absoluteString)")
             throw NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotOpenFile, userInfo: [NSURLErrorKey: URL])

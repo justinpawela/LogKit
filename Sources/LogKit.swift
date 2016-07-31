@@ -168,7 +168,7 @@ internal extension NSFileManager {
     ///                                necessary, before creating the file, if is does not exist.
     ///
     /// - throws: `NSError` with domain `NSURLErrorDomain`
-    internal func ensureFile(at URL: NSURL, createDirectories: Bool = true) throws {
+    internal func ensureFileExists(at URL: NSURL, createDirectories: Bool = true) throws {
         assert(URL.fileURL, "URL must be a file system URL")
 
         guard let dirPath = URL.URLByDeletingLastPathComponent?.path, filePath = URL.path else {
